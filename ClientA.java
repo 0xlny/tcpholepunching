@@ -107,7 +107,7 @@ public class ClientA {
                         outDiscussion.write('\n');
                         outDiscussion.flush();
 
-                        //Received all informations nedded -> proceed hole punching
+                        //Received all infos needed -> proceed hole punching
                         proceedHolePunching(InetAddress.getByName(tokens[3].trim()), Integer.parseInt(tokens[1].trim()), Integer.valueOf(tokens[2]));
                     }catch (IOException ioe){
                         ioe.printStackTrace();
@@ -130,7 +130,8 @@ public class ClientA {
                     inPunch = new BufferedReader(new InputStreamReader(socketClientPunch.getInputStream()));
                     outPunch = new BufferedOutputStream(socketClientPunch.getOutputStream());
                 }catch (Exception e){
-                    e.printStackTrace();
+                    inPunch = null;
+                    outPunch = null;
                 }
             }
         }).start();
@@ -140,8 +141,7 @@ public class ClientA {
         this.listenOnHole = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (runningHole) {
-                    if(inPunch != null){
+                while(runningHole) {
                         try {
                             message = inPunch.readLine();
 
@@ -149,11 +149,9 @@ public class ClientA {
                         } catch (IOException ex) {
                             System.err.println("Error " + ex);
                         }
-                    }
                 }
             }
         });
-
         this.listenOnHole.start();
     }
 
@@ -164,9 +162,7 @@ public class ClientA {
                 int j = 0;
                 String msg;
                 //create Loop to send udp packets
-                while (runningHole) {
-                    if(outPunch != null){
-
+                while(runningHole){
                         try{
                             msg = "I AM CLIENT A " + j;
                             outPunch.write(msg.getBytes());
@@ -179,7 +175,6 @@ public class ClientA {
                         }catch(Exception e){
                             System.err.println("SleepException");
                         }
-                    }
                 }
             }
         });
@@ -218,12 +213,16 @@ public class ClientA {
 
 
             }catch (ConnectException ce){
-                ce.printStackTrace();
+                System.out.println("Punch: Connection refused");
             }
 
-            System.out.println("Connected to : " + addr + ":" + portToConnect);
-            listenDataOnHole(addr, portToConnect);
-            writeDataOnHole();
+            if(outPunch != null && inPunch != null){
+                System.out.println("Punch: Connected to : " + addr + ":" + portToConnect);
+                listenDataOnHole(addr, portToConnect);
+                writeDataOnHole();
+            }else{
+                System.err.println("Error when attempting to connect");
+            }
         }
     }
 
