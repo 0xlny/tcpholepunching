@@ -72,8 +72,6 @@ public class ClientA {
         outPunch.write(sendData);
         outPunch.write('\n');
         outPunch.flush();
-
-
     }
 
     private void readOnHole() throws IOException{
@@ -239,7 +237,7 @@ public class ClientA {
                 mediatorTcpPunchPort = Integer.parseInt(args[2].trim());
             } catch (Exception ex) {
                 System.err.println("Error in input");
-                System.out.println("USAGE: java ClientA serverIp mediatorTcpDiscussionPort mediatorTcpPunchPort");
+                System.out.println("USAGE: java ClientA mediatorIP mediatorTcpDiscussionPort mediatorTcpPunchPort");
                 System.out.println("Example: java ClientA 127.0.0.1 9000 9001");
                 System.exit(0);
             }

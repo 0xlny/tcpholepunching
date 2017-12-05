@@ -144,7 +144,6 @@ public class ClientB {
                 while(runningHole) {
                         try {
                             message = inPunch.readLine();
-
                             System.out.println("Received: " + message.trim() + ", From: IP " + addr + " Port " + port);
                         } catch (IOException ex) {
                             System.err.println("Error " + ex);
@@ -153,6 +152,14 @@ public class ClientB {
             }
         });
         this.listenOnHole.start();
+    }
+
+    private void redirectPorts(int from, int to){
+        try {
+            Process proc1 = Runtime.getRuntime().exec("iptables -t nat -A PREROUTING -i eth0 -p tcp --dport " + from + " -j REDIRECT --to-port " + to);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void writeDataOnHole(){
@@ -218,6 +225,8 @@ public class ClientB {
 
             if(outPunch != null && inPunch != null){
                 System.out.println("Punch: Connected to : " + addr + ":" + portToConnect);
+                redirectPorts(localPort, 8080);
+
                 listenDataOnHole(addr, portToConnect);
                 writeDataOnHole();
             }else{
@@ -239,7 +248,7 @@ public class ClientB {
                 mediatorTcpPunchPort = Integer.parseInt(args[2].trim());
             } catch (Exception ex) {
                 System.err.println("Error in input");
-                System.out.println("USAGE: java ClientB serverIp mediatorTcpDiscussionPort mediatorTcpPunchPort");
+                System.out.println("USAGE: java ClientB mediatorIP mediatorTcpDiscussionPort mediatorTcpPunchPort");
                 System.out.println("Example: java ClientB 127.0.0.1 9000 9001");
                 System.exit(0);
             }
