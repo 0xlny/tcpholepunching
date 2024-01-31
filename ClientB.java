@@ -108,7 +108,7 @@ public class ClientB {
                         outDiscussion.flush();
 
                         //Received all infos needed -> proceed hole punching
-                        proceedHolePunching(InetAddress.getByName(tokens[3].trim()), Integer.parseInt(tokens[5].trim()), Integer.valueOf(tokens[4]));
+                        proceedHolePunching(InetAddress.getByName(tokens[3].trim()), Integer.parseInt(tokens[5].trim()), socketClientPunch.getLocalPort());
                     }catch (IOException ioe){
                         ioe.printStackTrace();
                     }
@@ -152,14 +152,6 @@ public class ClientB {
             }
         });
         this.listenOnHole.start();
-    }
-
-    private void redirectPorts(int from, int to){
-        try {
-            Process proc1 = Runtime.getRuntime().exec("iptables -t nat -A PREROUTING -i eth0 -p tcp --dport " + from + " -j REDIRECT --to-port " + to);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private void writeDataOnHole(){
@@ -225,7 +217,6 @@ public class ClientB {
 
             if(outPunch != null && inPunch != null){
                 System.out.println("Punch: Connected to : " + addr + ":" + portToConnect);
-                redirectPorts(localPort, 8080);
 
                 listenDataOnHole(addr, portToConnect);
                 writeDataOnHole();
